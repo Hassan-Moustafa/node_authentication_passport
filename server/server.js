@@ -8,6 +8,8 @@ const authConfig = require('./auth/authConfig');
 const _ = require('lodash');
 const {User} = require('./models/user');
 const signUp = require('./auth/signUp');
+const logIn = require('./auth/logIn');
+const logOut = require('./auth/logOut');
 
 
 let app = express();
@@ -30,40 +32,30 @@ app.post('/todos' , auth().authenticate() ,(req,res) => {
 
 app.post('/login' , (req,res) => {
 
-    let body = _.pick(req.body , ['email' , 'password']);
-    User.findOne({email: body.email}).then((user) => {
-        if(!user)
-        {
-            return res.status(404).send({error : 'email or password is incorrect'});
-        }
-        if(user.password !== body.password)
-        {
-            return res.status(404).send({error : 'email or password is incorrect'});
-        }
-
-        let payLoad = {
-            _id : user._id
-        }
-
-        let token = jwt.sign(payLoad,authConfig.jwtSecret);
-        return res.status(200).send({token});
+    logIn(req).then((token) => {
+        res.status(200).send(token);
     }).catch((error) => {
         res.status(400).send(error);
     })
-
-
 });
 
 app.post('/signup' , (req,res) => {
 
     
-    signUp(req.body).then((user) => {
+    signUp(req).then((user) => {
         res.status(200).send(user);
     }).catch((error) => {
         res.status(400).send(error);
     });
 
 });
+
+app.delete('/logout' , auth().authenticate() , (req,res) => {
+
+    logOut(req).then(() => {
+        res.status(200).send({state : 'logged out'});
+    })
+})
 
 
 app.listen(process.env.PORT, () => {

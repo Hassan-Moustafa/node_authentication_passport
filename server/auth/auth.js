@@ -1,42 +1,42 @@
 let passport = require('passport');
 let passportJWT = require('passport-jwt');
-let authConfig = require("./authConfig"); 
+let authConfig = require("./authConfig");
 let mongoose = require('mongoose');
-let {User} = require('../models/user');
+let { User } = require('../models/user');
 
-var ExtractJwt = passportJWT.ExtractJwt;  
-var Strategy = passportJWT.Strategy;  
+var ExtractJwt = passportJWT.ExtractJwt;
+var Strategy = passportJWT.Strategy;
 
-var options = {  
+var options = {
     secretOrKey: authConfig.jwtSecret,
-    jwtFromRequest: ExtractJwt.fromHeader('x-auth')
+    jwtFromRequest: ExtractJwt.fromHeader('x-auth'),
+    passReqToCallback: true
 };
 
-module.exports = function ()
-{
-    var strategy = new Strategy(options, function ( JWT_Payload , done) {
-        
+module.exports = function () {
+    var strategy = new Strategy(options, function (request, JWT_Payload, done) {
+
         let _id = JWT_Payload._id;
-        User.findOne({_id : _id}).then((user) => {
+        User.findOne({ _id: _id }).then((user) => {
 
-            //mongoose.disconnect();
-            return done(null,user);
-
+            if (request.header('x-auth') === user.token.token) {
+                return done(null, true,user);
+            }
+            else {
+                return done(null, false, { error: 'token is invalid' });
+            }
         }).catch((error) => {
-
-            //mongoose.disconnect();
-            return done(error , null);
-            
+            return done(error, null);
         })
     });
     passport.use(strategy);
 
     return {
-        initialize: function() {
+        initialize: function () {
             return passport.initialize();
         },
-        authenticate: function() {
-            return  passport.authenticate('jwt',authConfig.jwtSession);
+        authenticate: function () {
+            return passport.authenticate('jwt', authConfig.jwtSession);
         }
     };
 }

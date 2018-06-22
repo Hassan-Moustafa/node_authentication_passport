@@ -10,7 +10,7 @@ const pickBody = (requestBody) => {
         let schemaKeys = Object.keys(User.schema.obj);
         for(let key in schemaKeys)
         {
-            if(schemaObj[schemaKeys[key]].comeFromReq === 'MUST')
+            if(schemaObj[schemaKeys[key]].signUpComeFromReq === 'MUST')
             {
                 if(!requestBody[schemaKeys[key]])
                 {
@@ -18,7 +18,7 @@ const pickBody = (requestBody) => {
                 }
                 body[schemaKeys[key]] = requestBody[schemaKeys[key]];
             }
-            else if(schemaObj[schemaKeys[key]].comeFromReq === 'MAYBE')
+            else if(schemaObj[schemaKeys[key]].signUpComeFromReq === 'MAYBE')
             {
                 if(!requestBody[schemaKeys[key]])
                 {
@@ -34,11 +34,12 @@ const pickBody = (requestBody) => {
     });
 }
 
-module.exports = function (requestBody){
+module.exports = function (request){
 
     return new Promise((resolve,reject) => {
 
-        pickBody(requestBody).then((body) => {
+        pickBody(request.body).then((body) => {
+            
             User.findOne({email : body.email}).then((user) => {
                 if(!user)
                 {

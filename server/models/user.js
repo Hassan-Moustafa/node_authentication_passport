@@ -15,23 +15,35 @@ let userSchema = mongoose.Schema({
             },
             message : '{VALUE} is not valid email'
         },
-        comeFromReq: 'MUST'
+        signUpComeFromReq: 'MUST',
+        logInComeFromReq: 'MUST'
     },
     password:{
         type: String,
         required: true,
         minlength: 6,
-        comeFromReq: 'MUST'
+        signUpComeFromReq: 'MUST',
+        logInComeFromReq: 'MUST'
     },
     gender:{
         type: String,
         required: false,
-        comeFromReq: 'MAYBE'
+        signUpComeFromReq: 'MAYBE'
     },
     phone:{
         type: String,
         required: false,
-        comeFromReq: 'MAYBE'
+        signUpComeFromReq: 'MAYBE'
+    },
+    token:{
+        access:{
+            type: String,
+            required: false
+        },
+        token:{
+            type:String,
+            required: false
+        }
     }
 });
 
@@ -54,7 +66,7 @@ userSchema.pre('save',function (next){
 
 })
 
-let User = mongoose.model('User' , userSchema,'users');
+let User = mongoose.model('User' , userSchema);
 
 module.exports = {
     User
