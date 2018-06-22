@@ -1,14 +1,13 @@
 require('../config/config');
 let mongoose = require('./db/mongoose');
 const express = require('express');
-const passport = require('passport');
 const bodyParser = require('body-parser');
 const jwt  = require('jsonwebtoken');
 const auth = require('./auth/auth');
 const authConfig = require('./auth/authConfig');
 const _ = require('lodash');
 const {User} = require('./models/user');
-const bcrypt = require('bcryptjs');
+const signUp = require('./auth/signUp');
 
 
 let app = express();
@@ -57,14 +56,12 @@ app.post('/login' , (req,res) => {
 
 app.post('/signup' , (req,res) => {
 
-    let body = _.pick(req.body , ['email' , 'password']);
-    let newUser = new User(body);
-    newUser.save().then((user) => {
+    
+    signUp(req.body).then((user) => {
         res.status(200).send(user);
     }).catch((error) => {
         res.status(400).send(error);
-    })
-
+    });
 
 });
 

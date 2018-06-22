@@ -18,9 +18,15 @@ module.exports = function ()
         
         let _id = JWT_Payload._id;
         User.findOne({_id : _id}).then((user) => {
-            done(null,user);
+
+            //mongoose.disconnect();
+            return done(null,user);
+
         }).catch((error) => {
-            done(error , null);
+
+            //mongoose.disconnect();
+            return done(error , null);
+            
         })
     });
     passport.use(strategy);
